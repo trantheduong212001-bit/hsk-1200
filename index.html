@@ -989,7 +989,8 @@ function openChapter(i){
   curChap=i;
   document.getElementById('chapTitle').textContent=c.t;
   const body=document.getElementById('chapBody');
-  const giau = hidePy && c.lv>=3 && c.h.indexOf('class="pyc"')>=0;
+  // từ HSK 3 giấu cả cột Pinyin lẫn phiên âm ruby trong câu ví dụ
+  const giau = hidePy && c.lv>=3 && (c.h.indexOf('class="pyc"')>=0 || c.h.indexOf('<rt>')>=0);
   body.innerHTML=(giau
     ? '<p class="pynote">Pinyin đang ẩn từ HSK 3 — giống đề thi thật. '+
       '<button class="linkbtn" id="showPy">Hiện pinyin cho chương này</button></p>'
