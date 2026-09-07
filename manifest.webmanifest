@@ -1,0 +1,30 @@
+{
+  "name": "Thẻ chữ HSK 1200",
+  "short_name": "HSK 1200",
+  "description": "Ôn 1.175 từ HSK 1–4: thẻ chữ, tra từ, lỗi hay mắc, lịch 40 tuần.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FCFBF7",
+  "theme_color": "#C0402B",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
