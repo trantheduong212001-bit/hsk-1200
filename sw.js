@@ -1,5 +1,5 @@
 /* Thẻ chữ HSK 1200 — chạy offline sau lần mở đầu tiên */
-const CACHE = 'hsk1200-v6';
+const CACHE = 'hsk1200-v7';
 const ASSETS = ['./', './index.html', './manifest.webmanifest',
                 './icon-192.png', './icon-512.png', './icon-maskable.png'];
 
