@@ -56,8 +56,8 @@ h1,h2,h3{font-family:'Newsreader',Georgia,serif;font-weight:600;text-wrap:balanc
 /* ── Khung ứng dụng: phủ kín màn hình ───────────────────────── */
 .app{
   height:100dvh; height:100vh;
-  display:grid; grid-template-rows:auto 1fr auto;
-  grid-template-areas:"head" "main" "nav";
+  display:grid; grid-template-rows:auto 1fr auto auto;
+  grid-template-areas:"head" "main" "actbar" "nav";
   overflow:hidden;
 }
 @supports (height:100dvh){ .app{height:100dvh} }
@@ -109,10 +109,11 @@ main{grid-area:main;overflow:hidden;position:relative}
 .pad{padding:16px 14px 24px;max-width:940px;margin:0 auto}
 
 /* ══ TAB THẺ: không cuộn, phủ kín ══ */
-#p-cards{overflow-y:auto;display:flex;flex-direction:column;padding:10px 14px 14px}
+#p-cards{overflow-y:auto;display:flex;flex-direction:column;padding:10px 14px}
 .stage{
   cursor:pointer;flex:1 0 auto;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:14px;min-height:0;
+  touch-action:pan-y;
 }
 
 /* ô 田字格 */
@@ -198,11 +199,13 @@ main{grid-area:main;overflow:hidden;position:relative}
 .linkbtn:focus-visible{outline:2px solid var(--qing);outline-offset:3px;border-radius:3px}
 
 /* nút thao tác: to, vừa ngón cái */
-.acts{
-  display:flex;gap:10px;flex:none;margin-top:auto;
-  position:sticky;bottom:0;z-index:2;             /* luôn thấy, dù màn hình thấp */
-  background:var(--paper);padding:9px 0 2px;
+/* Hàng thao tác: một hàng riêng của khung app, luôn có chỗ */
+.actbar{
+  grid-area:actbar;background:var(--paper);
+  padding:2px 14px 8px;border-top:1px solid var(--hair);
 }
+body:not(.tab-cards) .actbar{display:none}
+.acts{display:flex;gap:10px}
 .btn{
   appearance:none;font:inherit;font-size:16px;font-weight:600;cursor:pointer;
   border-radius:12px;padding:15px 18px;border:1px solid var(--hair);
@@ -215,12 +218,14 @@ main{grid-area:main;overflow:hidden;position:relative}
 .btn.know{background:var(--brass-soft);border-color:var(--brass);color:var(--brass)}
 .btn.again{background:var(--cinnabar-soft);border-color:var(--cinnabar);color:var(--cinnabar)}
 .btn.small{flex:none;font-size:14px;padding:10px 16px;min-height:0}
-.acts .say-big{flex:none;width:54px;padding:0;display:grid;place-items:center}
+.acts .say-big,.acts .skip{flex:none;width:54px;padding:0;display:grid;place-items:center}
+.acts .skip{font-size:20px;color:var(--mute)}
+.acts .skip:hover{color:var(--ink)}
 .acts .say-big svg{width:24px;height:24px}
 
 .deckmeta{
-  flex:none;text-align:center;font-size:12px;color:var(--mute);
-  font-variant-numeric:tabular-nums;padding:8px 0 0;
+  text-align:center;font-size:12px;color:var(--mute);
+  font-variant-numeric:tabular-nums;padding:7px 0 8px;
 }
 .keys{display:none}
 .empty-deck{text-align:center;color:var(--mute);font-size:15px;max-width:32ch;margin:0 auto}
@@ -494,7 +499,7 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--qing);outline-of
 
 /* ══ MÀN RỘNG: tab lên trên, thẻ vừa phải, hiện phím tắt ══ */
 @media (min-width:721px){
-  .app{grid-template-rows:auto auto 1fr;grid-template-areas:"head" "nav" "main"}
+  .app{grid-template-rows:auto auto 1fr auto;grid-template-areas:"head" "nav" "main" "actbar"}
   nav{border-top:0;border-bottom:1px solid var(--hair);padding:0 14px;gap:2px;justify-content:center}
   nav button{
     flex:none;flex-direction:row;gap:7px;font-size:14px;
@@ -557,9 +562,6 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--qing);outline-of
       </div>
       <div class="face" id="face"><p class="ask">Đọc thầm âm và nghĩa, rồi lật thẻ để đối chiếu.</p></div>
     </div>
-    <div class="deckmeta"><span id="deckPos">—</span></div>
-    <div class="acts" id="acts"></div>
-    <div class="keys"><kbd>Space</kbd> lật · <kbd>←</kbd> chưa thuộc · <kbd>→</kbd> thuộc rồi · <kbd>S</kbd> nghe</div>
   </section>
 
   <!-- ══ TRA TỪ ══ -->
@@ -621,6 +623,12 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--qing);outline-of
     </div>
   </section>
 </main>
+
+<div class="actbar">
+  <div class="deckmeta"><span id="deckPos">—</span></div>
+  <div class="acts" id="acts"></div>
+  <div class="keys"><kbd>Space</kbd> lật · <kbd>←</kbd> chưa thuộc · <kbd>→</kbd> thuộc rồi · <kbd>S</kbd> nghe</div>
+</div>
 
 <nav role="tablist">
   <button role="tab" aria-selected="true" data-tab="cards">
@@ -796,8 +804,10 @@ document.querySelectorAll('nav button').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
     document.querySelectorAll('.panel').forEach(p=>p.hidden=(p.id!=='p-'+b.dataset.tab));
+    document.body.classList.toggle('tab-cards',b.dataset.tab==='cards');
   });
 });
+document.body.classList.add('tab-cards');
 
 /* ── Tấm bộ lọc ───────────────────────────────────────────── */
 const sheet=document.getElementById('sheet'), scrim=document.getElementById('scrim');
@@ -855,7 +865,9 @@ function render(){
     ? '<button class="btn again" id="bAgain">Chưa thuộc</button>'+
       '<button class="btn say-big" data-say="'+esc(w.h)+'" aria-label="Nghe phát âm">'+ICON_SPK+'</button>'+
       '<button class="btn know" id="bKnow">Thuộc rồi</button>'
-    : '<button class="btn primary" id="bFlip">Lật thẻ</button>';
+    : '<button class="btn primary" id="bFlip">Lật thẻ</button>'+
+      '<button class="btn skip" id="bSkip" aria-label="Thẻ tiếp theo" title="Thẻ tiếp theo">›</button>';
+  const bs=document.getElementById('bSkip'); if(bs)bs.onclick=()=>move(1);
   const rv=document.getElementById('revealPy');
   if(rv)rv.onclick=e=>{e.stopPropagation();pyShown=true;render();speak(w.h);};
   const bf=document.getElementById('bFlip'); if(bf)bf.onclick=flip;
@@ -879,6 +891,12 @@ function flip(){
   // đang giấu âm thì không tự đọc — để tự đoán trước đã
   if(flipped&&autoSay&&!pyHidden(deck[idx]))speak(deck[idx].h);
 }
+function move(d){                       // chuyển thẻ mà không đánh dấu gì
+  if(!deck.length)return;
+  flipped=false; pyShown=false;
+  idx=(idx+d+deck.length)%deck.length;
+  render();
+}
 function step(know){
   if(!deck.length)return;
   const w=deck[idx];
@@ -886,10 +904,21 @@ function step(know){
   save();
   flipped=false; pyShown=false; idx=(idx+1)%deck.length; render();
 }
+let swiped=false;
 stage.addEventListener('click',e=>{
+  if(swiped){swiped=false;return;}
   if(e.target.closest('.say,.say-big,button,a,textarea,input'))return;
   flip();
 });
+// vuốt ngang: sang thẻ trước / thẻ sau
+let sx=0,sy=0;
+stage.addEventListener('touchstart',e=>{
+  const t=e.changedTouches[0]; sx=t.clientX; sy=t.clientY; swiped=false;
+},{passive:true});
+stage.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+  if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.4){ swiped=true; move(dx<0?1:-1); }
+},{passive:true});
 document.getElementById('card').addEventListener('keydown',e=>{
   if(e.key==='Enter'||e.key===' '){e.preventDefault();flip();}
 });
